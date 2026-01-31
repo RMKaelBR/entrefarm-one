@@ -5,7 +5,7 @@ export type GameState = {
     wallet: Currency;
     bank: Currency;
     children: Child[];
-    advanceTime: () => void;
+    advanceWorldTime: () => void;
     nextYear: () => void;
     earn: (amount: Currency) => void;
     spend: (amount: Currency) => boolean;
@@ -13,7 +13,10 @@ export type GameState = {
     withdraw: (amount: Currency) => boolean;
     initFamily: () => void;
     addChild: (child: Child) => void;
-    removeChild: (childId: string) => void;
+    removeChild: (childId: Child["id"]) => void;
+    pauseChildEducation: (childId: Child["id"]) => void;
+    resumeChildEducation: (childId: Child["id"]) => void;
+    setChildLaborProfession: (childId: Child["id"], laborProfession: Child["laborProfession"]) => void;
     resetAll: () => void;
 };
 
@@ -22,17 +25,42 @@ export type Currency = {
   silver: number; // 0..9 ideally (normalized)
 };
 
-export type PersonStage = "child" | "adult_child";
+type PersonStage = "child" | "adult_child";
+export const GENDERS = ["male", "female"] as const;
+export type Gender = typeof GENDERS[number];
+
+export const PROFESSIONS = [
+  "civil_engineer",
+  "mechanical_engineer",
+  "agricultural_engineer",
+  "engineer",
+  "doctor",
+  "lawyer",
+  "agriculturist",
+  "financial_analyst"
+] as const;
+
+export type Profession = typeof PROFESSIONS[number];
+
+export const LABOR_PROFESSIONS = [
+  "employee",
+  "laborer",
+  "coop_employee"
+] as const;
+
+export type LaborProfession = typeof LABOR_PROFESSIONS[number];
 
 export type Child = {
   id: string;
   name?: string;
   stage: PersonStage;
-
-  // Time tokens represent maturity for children
-  timeTokens: number;
-  timeTokensMax: number;
-
+  gender: Gender;
+  isStudying?: boolean;
+  profession: Profession;
+  laborProfession?: LaborProfession | null;
+  
+  maturity: TokenTrack;
+  education?: TokenTrack | null;
 };
 
 export type TokenTrack = { timeTokens: number; timeTokensMax: number };
